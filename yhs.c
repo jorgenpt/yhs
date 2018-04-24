@@ -1923,7 +1923,23 @@ static int maybe_upgrade_to_websocket(yhsRequest *re)
 	if(!connection)
 		return 1;
 
-	if(STRICMP(connection,"Upgrade")!=0)
+
+	char conn_hdr[64] = { 0 };
+	const char *val_token;
+	bool should_upgrade = false;
+
+	strncpy(conn_hdr, connection, sizeof(conn_hdr));
+	conn_hdr[sizeof(conn_hdr) - 1] = '\0';
+
+	val_token = strtok(conn_hdr, ", ");
+	while (val_token != nullptr && !should_upgrade) {
+		if (STRICMP(val_token, "Upgrade") == 0)
+			should_upgrade = true;
+
+		val_token = strtok(nullptr, ", ");
+	}
+
+	if (!should_upgrade)
 		return 1;
 
 	// ``The request MUST include a header field with the name
