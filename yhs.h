@@ -145,7 +145,7 @@ YHS_EXTERN typedef void (*yhsResPathHandlerFn)(yhsRequest *re);
 //
 // - Port 80 is a reasonable choice.
 //
-// - The server object is allocated using `calloc'
+// - The server object is allocated as if by using `calloc'
 YHS_EXTERN yhsServer *yhs_new_server(int port);
 
 // Set server's name. The server's name appears in the TOC and
@@ -306,7 +306,7 @@ YHS_EXTERN void yhs_text(yhsRequest *req,const char *text);
 //
 // - Response data is automatically discarded when processing a HEAD request.
 //
-YHS_EXTERN void yhs_html_textf(yhsRequest *req,const char *fmt,...) YHS_PRINTF_LIKE(3,4);
+YHS_EXTERN void yhs_html_textf(yhsRequest *req,const char *fmt,...) YHS_PRINTF_LIKE(2,3);
 YHS_EXTERN void yhs_html_textv(yhsRequest *req,const char *fmt,va_list v);
 YHS_EXTERN void yhs_html_text(yhsRequest *req,const char *text);
 
