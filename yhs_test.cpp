@@ -6,10 +6,11 @@
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#ifdef WIN32
+#ifdef _WIN32
 
 // Windows
-#define _WIN32_WINNT 0x500
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0601
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
@@ -17,14 +18,9 @@
 #include <direct.h>
 #include <conio.h>
 
-#endif
+#else
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-#ifdef __APPLE__
-
-// Mac/iBlah
+// POSIX
 #include <unistd.h>
 
 #endif
@@ -32,13 +28,16 @@
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <stdlib.h>
-#include <vector>
-#include <algorithm>
 #include <assert.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
+
+#include <algorithm>
+#include <vector>
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -382,6 +381,10 @@ static void Log(yhsLogCategory cat,const char *str,void *context)
 
 	case YHS_LOG_DEBUG:
 		break;
+
+	case YHS_LOG_ENDVALUE:
+		fputs("invalid log category",stderr);
+		break;
 	}
 
 #ifdef _WIN32
@@ -389,7 +392,7 @@ static void Log(yhsLogCategory cat,const char *str,void *context)
 #endif//_WIN32
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 
 static void WaitForKey()
 {
@@ -406,7 +409,7 @@ static void WaitForKey()
 
 int main(int argc,char *argv[])
 {
-#ifdef WIN32
+#ifdef _WIN32
     atexit(&WaitForKey);
 
     WSADATA wd;
@@ -479,7 +482,7 @@ int main(int argc,char *argv[])
     {
         yhs_update(server);
         
-#ifdef WIN32
+#ifdef _WIN32
         Sleep(10);
 
 		if(_kbhit())
@@ -512,7 +515,7 @@ int main(int argc,char *argv[])
 				}
 			}
 
-			yhs_end_deferred_response(re_ptr);
+			yhs_end_deferred_response(*re_ptr, &g_deferred_chain);
 
 			++num_res;
 		}
@@ -527,7 +530,7 @@ int main(int argc,char *argv[])
             {
 				(*it->fn)(it->dre);
 
-                yhs_end_deferred_response(&it->dre);
+                yhs_end_deferred_response(it->dre, &g_deferred_chain);
                 
                 it=g_deferreds.erase(it);
             }
